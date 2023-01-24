@@ -17,12 +17,15 @@ public class PlayerControllerX : MonoBehaviour
     public AudioClip moneySound;
     public AudioClip explodeSound;
 
+    //GAME variables
+    public int playerCounter = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         Physics.gravity *= gravityModifier;
         playerAudio = GetComponent<AudioSource>();
+
         //Missing to assing rigidbody component to playerRb
         playerRb = GetComponent<Rigidbody>();
 
@@ -35,11 +38,12 @@ public class PlayerControllerX : MonoBehaviour
     void Update()
     {
         // While space is pressed and player is low enough, float up
-        if (Input.GetKey(KeyCode.Space) && !gameOver)
+        if (Input.GetKeyDown(KeyCode.Space) && !gameOver)
         {
-            playerRb.AddForce(Vector3.up * floatForce, ForceMode.Impulse); //Missing ForceMode.Impulse
+            playerRb.AddForce(Vector3.up * floatForce, ForceMode.Impulse);
         }
-        StayInBounds(1,15);
+        //Check if player in bounds
+        StayInBound();
     }
 
     private void OnCollisionEnter(Collision other)
@@ -48,40 +52,29 @@ public class PlayerControllerX : MonoBehaviour
         if (other.gameObject.CompareTag("Bomb"))
         {
             GameOver();
-            Destroy(other.gameObject); //Destroy object collided with
+            Destroy(other.gameObject); //Destroy bomb
         }
 
         // if player collides with money, fireworks
         else if (other.gameObject.CompareTag("Money"))
         {
             fireworksParticle.Play();
+            playerCounter++; //Increase player score
             playerAudio.PlayOneShot(moneySound, 1.0f);
-            Destroy(other.gameObject);
+            Destroy(other.gameObject); //Collect coin
+        }
+        // if player collides with ground and not game over, game over
+        else if (other.gameObject.CompareTag("Ground") && !gameOver) {
+            GameOver();
         }
 
     }
 
-    //Function that makes the player stay in bounds
-    private void StayInBounds(float lowBound,float upBound) {
-        //Check if gameOver
-        if (!gameOver)
-        {
-            if (transform.position.y > upBound)
-            {
-                transform.position = new Vector3(-3, upBound, 0);
-            }
-            else if (transform.position.y < lowBound)
-            {
-                transform.position = new Vector3(-3, lowBound, 0);
-            }
+    //Function that make the player stay in bounds
+    private void StayInBound() {
+        if (transform.position.y > 15) {
+            playerRb.velocity = new Vector3(0, 0, 0);
         }
-        /*
-        else {
-            if (transform.position.y < 0) {
-                Destroy(gameObject); //Destroy player once gameOver
-            }
-        }
-        */
     }
 
     //Function that manages Game Over
