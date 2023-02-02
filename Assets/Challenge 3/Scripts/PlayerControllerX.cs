@@ -61,6 +61,7 @@ public class PlayerControllerX : MonoBehaviour
             fireworksParticle.Play();
             playerCounter++; //Increase player score
             playerAudio.PlayOneShot(moneySound, 1.0f);
+            Debug.Log($"Current score: {playerCounter}");
             Destroy(other.gameObject); //Collect coin
         }
         // if player collides with ground and not game over, game over
